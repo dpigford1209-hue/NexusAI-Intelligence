@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ section|title }} Vault — NexusAI{% endblock %}
+{% block content %}
+<div class="page">
+  <div style="margin-bottom:24px">
+    <div class="muted" style="margin-bottom:4px"><a href="/home">Dashboard</a> / {{ section|title }}</div>
+    <h1>{% if section=='hr' %}👥 Human Resources{% elif section=='finance' %}💰 Finance{% else %}🚀 Product{% endif %}</h1>
+  </div>
+
+  <!-- Search -->
+  <div style="margin-bottom:24px;display:flex;gap:10px">
+    <input id="searchInput" class="form-input" style="max-width:360px" placeholder="Search documents…" oninput="filterDocs(this.value)"/>
+  </div>
+
+  <div id="docGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+    {% for doc in docs %}
+    <div class="card doc-card" data-title="{{ doc.title|lower }}" data-content="{{ doc.content|lower }}">
+      <div style="font-size:13px;font-weight:700;color:#818cf8;margin-bottom:8px">{{ doc.title }}</div>
+      <div style="font-size:13px;color:#cbd5e1;line-height:1.65">{{ doc.content }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <p id="noResults" style="display:none;color:#64748b;margin-top:24px">No documents match your search.</p>
+</div>
+<script>
+function filterDocs(q) {
+  q = q.toLowerCase();
+  let cards = document.querySelectorAll('.doc-card');
+  let any = false;
+  cards.forEach(c => {
+    let show = !q || c.dataset.title.includes(q) || c.dataset.content.includes(q);
+    c.style.display = show ? '' : 'none';
+    if (show) any = true;
+  });
+  document.getElementById('noResults').style.display = any || !q ? 'none' : '';
+}
+</script>
+{% endblock %}

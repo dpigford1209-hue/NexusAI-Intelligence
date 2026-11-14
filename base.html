@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}NexusAI Intelligence{% endblock %}</title>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <meta name="apple-mobile-web-app-title" content="NexusAI"/>
+  <meta name="theme-color" content="#0f1117"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.6;background:#0f1117;color:#e2e8f0;min-height:100vh}
+    a{color:#818cf8;text-decoration:none}a:hover{text-decoration:underline}
+    .nav{background:#1a1d2e;border-bottom:1px solid #2d3148;padding:0 24px;display:flex;align-items:center;gap:0;height:56px;position:sticky;top:0;z-index:100}
+    .nav-brand{font-size:17px;font-weight:800;color:#818cf8;margin-right:32px;letter-spacing:-0.3px}
+    .nav-links{display:flex;gap:4px;flex:1}
+    .nav-link{padding:6px 14px;border-radius:6px;color:#94a3b8;font-size:13px;font-weight:500;transition:background .15s,color .15s}
+    .nav-link:hover,.nav-link.active{background:#2d3148;color:#e2e8f0;text-decoration:none}
+    .nav-right{display:flex;align-items:center;gap:12px}
+    .alert-badge{background:#ef4444;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:background .15s,transform .1s}
+    .btn:active{transform:scale(0.97)}
+    .btn-primary{background:#6366f1;color:#fff}.btn-primary:hover{background:#4f46e5}
+    .btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+    .btn-ghost{background:transparent;color:#94a3b8;border:1px solid #2d3148}.btn-ghost:hover{background:#2d3148;color:#e2e8f0}
+    .btn-sm{padding:5px 10px;font-size:12px}
+    .page{max-width:1100px;margin:0 auto;padding:32px 24px}
+    .card{background:#1a1d2e;border:1px solid #2d3148;border-radius:12px;padding:24px}
+    .flash-box{padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500}
+    .flash-error{background:#3f1313;border:1px solid #ef4444;color:#fca5a5}
+    .flash-success{background:#0f2d1a;border:1px solid #22c55e;color:#86efac}
+    .form-group{margin-bottom:16px}
+    .form-label{display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+    .form-input{width:100%;padding:10px 14px;background:#0f1117;border:1px solid #2d3148;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;transition:border .15s}
+    .form-input:focus{border-color:#6366f1}
+    .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+    .tag-info{background:#1e3a5f;color:#93c5fd}
+    .tag-warning{background:#3f2d0a;color:#fcd34d}
+    .tag-critical{background:#3f1313;color:#fca5a5}
+    h1{font-size:22px;font-weight:700;color:#e2e8f0}
+    h2{font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:12px}
+    .muted{color:#64748b;font-size:13px}
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% if session.get('username') %}
+<nav class="nav">
+  <span class="nav-brand">⬡ NexusAI</span>
+  <div class="nav-links">
+    <a href="/home" class="nav-link {% if request.path=='/home' %}active{% endif %}">Dashboard</a>
+    <a href="/chat" class="nav-link {% if request.path=='/chat' %}active{% endif %}">Chat</a>
+    <a href="/vault/hr" class="nav-link {% if '/vault/hr' in request.path %}active{% endif %}">HR</a>
+    <a href="/vault/finance" class="nav-link {% if '/vault/finance' in request.path %}active{% endif %}">Finance</a>
+    <a href="/vault/product" class="nav-link {% if '/vault/product' in request.path %}active{% endif %}">Product</a>
+    <a href="/paystubs" class="nav-link {% if '/paystub' in request.path %}active{% endif %}">Pay Stubs</a>
+    <a href="/alerts" class="nav-link {% if request.path=='/alerts' %}active{% endif %}">
+      Alerts {% if alert_count and alert_count > 0 %}<span class="alert-badge">{{ alert_count }}</span>{% endif %}
+    </a>
+  </div>
+  <div class="nav-right">
+    <span class="muted">{{ session.username }}</span>
+    <a href="/logout" class="btn btn-ghost btn-sm">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="max-width:1100px;margin:12px auto;padding:0 24px">
+        {% for cat, msg in messages %}
+          <div class="flash-box flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>
