@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Pay Stub #{{ stub.id }} — NexusAI{% endblock %}
+{% block head %}
+<style>
+  @media print {
+    .nav, .no-print { display: none !important; }
+    body { background: #fff; color: #000; }
+    .stub-box { border: 1px solid #ccc; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page" style="max-width:680px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <div class="muted" style="margin-bottom:4px"><a href="/paystubs">Pay Stubs</a> / #{{ stub.id }}</div>
+      <h1>Pay Stub #{{ stub.id }}</h1>
+    </div>
+    <div class="no-print" style="display:flex;gap:8px">
+      {% if role in ('employer','admin') %}
+      <a href="/paystubs/{{ stub.id }}/edit" class="btn btn-primary btn-sm">Edit</a>
+      {% endif %}
+      <button onclick="window.print()" class="btn btn-ghost btn-sm">🖨 Print</button>
+    </div>
+  </div>
+
+  <div class="stub-box card" style="padding:32px">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#818cf8">⬡ NexusAI Intelligence</div>
+        <div class="muted" style="margin-top:2px;font-size:12px">Pay Statement</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Stub ID</div>
+        <div style="font-size:18px;font-weight:700;color:#e2e8f0">#{{ stub.id }}</div>
+      </div>
+    </div>
+
+    <!-- Period & Employee -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #2d3148">
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Employee</div>
+        <div style="font-size:15px;font-weight:700;color:#e2e8f0">{{ stub.employee }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Pay Period</div>
+        <div style="font-size:14px;color:#e2e8f0">{{ stub.period_start }} → {{ stub.period_end }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Created By</div>
+        <div style="font-size:13px;color:#94a3b8">{{ stub.created_by }} on {{ stub.created_at }}</div>
+      </div>
+      {% if stub.updated_at %}
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Last Updated</div>
+        <div style="font-size:13px;color:#94a3b8">{{ stub.updated_at }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Earnings -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Earnings</div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #2d3148">
+        <span style="color:#e2e8f0">Gross Pay</span>
+        <span style="font-weight:700;color:#e2e8f0">${{ "%.2f"|format(stub.gross_pay) }}</span>
+      </div>
+    </div>
+
+    <!-- Deductions -->
+    {% if stub.deductions %}
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Deductions</div>
+      {% for d in stub.deductions %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2130">
+        <span style="color:#94a3b8">{{ d.label }}</span>
+        <span style="color:#f87171">-${{ "%.2f"|format(d.amount) }}</span>
+      </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px;color:#64748b">
+        <span>Total Deductions</span>
+        <span>-${{ "%.2f"|format(stub.deductions|sum(attribute='amount')) }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Net Pay -->
+    <div style="background:#0f2d1a;border:1px solid #22c55e;border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <span style="font-size:14px;font-weight:700;color:#86efac">Net Pay</span>
+      <span style="font-size:26px;font-weight:800;color:#22c55e">${{ "%.2f"|format(stub.net_pay) }}</span>
+    </div>
+
+    <!-- Employer Note -->
+    {% if stub.employer_note %}
+    <div style="background:#1e1b4b;border:1px solid #4338ca;border-radius:8px;padding:12px 16px">
+      <div style="font-size:11px;color:#818cf8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Employer Note</div>
+      <div style="color:#c7d2fe;font-size:13px">{{ stub.employer_note }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

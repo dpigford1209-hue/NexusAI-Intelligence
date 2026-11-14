@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Login — NexusAI{% endblock %}
+{% block content %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:400px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-size:40px;margin-bottom:8px">⬡</div>
+      <h1 style="color:#818cf8;font-size:26px">NexusAI Intelligence</h1>
+      <p class="muted" style="margin-top:4px">Secure knowledge vault — sign in to continue</p>
+    </div>
+    <div class="card">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="flash-box flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input class="form-input" type="text" name="username" placeholder="Enter username" required autofocus/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" name="password" placeholder="Enter password" required/>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px">Sign In</button>
+      </form>
+      <div style="margin-top:16px;display:flex;justify-content:space-between;font-size:13px">
+        <a href="/register">Create account</a>
+        <a href="/forgot-password">Forgot password?</a>
+      </div>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:16px;font-size:12px">Default admin: <code>admin</code> / <code>Admin@123</code></p>
+  </div>
+</div>
+{% endblock %}

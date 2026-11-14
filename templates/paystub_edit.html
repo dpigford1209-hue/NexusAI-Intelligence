@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if stub else 'New' }} Pay Stub — NexusAI{% endblock %}
+{% block head %}
+<style>
+  .ded-row{display:grid;grid-template-columns:1fr 140px 36px;gap:8px;align-items:center;margin-bottom:8px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="page" style="max-width:680px">
+  <div style="margin-bottom:20px">
+    <div class="muted" style="margin-bottom:4px"><a href="/paystubs">Pay Stubs</a> / {{ 'Edit #' + stub.id if stub else 'New Pay Stub' }}</div>
+    <h1>{{ 'Edit Pay Stub #' + stub.id if stub else 'Create New Pay Stub' }}</h1>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;padding:10px 16px;background:#1e1b4b;border-color:#4338ca">
+    <span style="font-size:12px;color:#a5b4fc;font-weight:600">🔐 Employer only — this form is restricted to employer and admin accounts.</span>
+  </div>
+
+  <div class="card">
+    <form method="POST" id="stubForm">
+      <div class="form-group">
+        <label class="form-label">Employee Username</label>
+        <select class="form-input" name="employee" required>
+          {% for u in users %}
+          <option value="{{ u }}" {% if stub and stub.employee==u %}selected{% endif %}>{{ u }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Period Start</label>
+          <input class="form-input" type="date" name="period_start" value="{{ stub.period_start if stub else '' }}" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Period End</label>
+          <input class="form-input" type="date" name="period_end" value="{{ stub.period_end if stub else '' }}" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gross Pay ($)</label>
+        <input class="form-input" type="number" name="gross_pay" step="0.01" min="0"
+               value="{{ '%.2f'|format(stub.gross_pay) if stub else '' }}"
+               oninput="recalc()" required/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Deductions</label>
+        <div id="dedRows">
+          {% if stub and stub.deductions %}
+            {% for d in stub.deductions %}
+            <div class="ded-row">
+              <input class="form-input" type="text"   name="d_label"  placeholder="Label (e.g. Federal Tax)" value="{{ d.label }}" oninput="recalc()"/>
+              <input class="form-input" type="number" name="d_amount" placeholder="Amount" step="0.01" min="0" value="{{ '%.2f'|format(d.amount) }}" oninput="recalc()"/>
+              <button type="button" class="btn btn-danger btn-sm" onclick="removeDed(this)" title="Remove">✕</button>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="ded-row">
+              <input class="form-input" type="text"   name="d_label"  placeholder="Label (e.g. Federal Tax)" oninput="recalc()"/>
+              <input class="form-input" type="number" name="d_amount" placeholder="Amount" step="0.01" min="0" value="0" oninput="recalc()"/>
+              <button type="button" class="btn btn-danger btn-sm" onclick="removeDed(this)" title="Remove">✕</button>
+            </div>
+          {% endif %}
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="addDed()">+ Add Deduction</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Calculated Net Pay</label>
+        <div id="netDisplay" style="font-size:22px;font-weight:700;color:#22c55e;padding:8px 0">$0.00</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Employer Note (optional)</label>
+        <textarea class="form-input" name="employer_note" rows="2" placeholder="Optional note visible to employee…">{{ stub.employer_note if stub else '' }}</textarea>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-primary" style="padding:10px 24px">{{ 'Save Changes' if stub else 'Create Pay Stub' }}</button>
+        <a href="/paystubs" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function recalc() {
+  const gross = parseFloat(document.querySelector('[name="gross_pay"]').value) || 0;
+  let ded = 0;
+  document.querySelectorAll('[name="d_amount"]').forEach(i => ded += parseFloat(i.value) || 0);
+  document.getElementById('netDisplay').textContent = '$' + (gross - ded).toFixed(2);
+}
+function addDed() {
+  const row = document.createElement('div');
+  row.className = 'ded-row';
+  row.innerHTML = '<input class="form-input" type="text" name="d_label" placeholder="Label" oninput="recalc()"/>'
+    + '<input class="form-input" type="number" name="d_amount" placeholder="Amount" step="0.01" min="0" value="0" oninput="recalc()"/>'
+    + '<button type="button" class="btn btn-danger btn-sm" onclick="removeDed(this)" title="Remove">✕</button>';
+  document.getElementById('dedRows').appendChild(row);
+}
+function removeDed(btn) {
+  btn.closest('.ded-row').remove();
+  recalc();
+}
+// Init display
+recalc();
+</script>
+{% endblock %}
